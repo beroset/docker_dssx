@@ -1,0 +1,21 @@
+FROM archlinux:base-20240714.0.246936 AS builder
+
+LABEL maintainer="Ed Beroset <beroset@ieee.org>"
+
+WORKDIR /tmp/
+ENV TZ=America/New_York
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+RUN pacman --noconfirm -Sy git make cmake clang
+RUN git clone --recurse-submodules --branch fix-klusolve-install https://github.com/beroset/OpenDSS-C.git
+WORKDIR /tmp/OpenDSS-C
+RUN cmake -DCMAKE_BUILD_TYPE=Release -S . -B build
+RUN cmake --build build -t package
+
+FROM archlinux:base-20240714.0.246936
+WORKDIR /root/
+COPY --from=builder /tmp/OpenDSS-C/build/OpenDSSX-*.sh .
+RUN ./OpenDSSX*.sh --skip-license --prefix=/usr/
+RUN ldconfig
+WORKDIR /mnt/host/
+ENV VISUAL=/usr/bin/true
+ENTRYPOINT ["/usr/bin/OpenDSSC"]

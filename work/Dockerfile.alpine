@@ -1,0 +1,23 @@
+FROM alpine:3.20.1 AS builder
+
+LABEL maintainer="Ed Beroset <beroset@ieee.org>"
+
+WORKDIR /tmp/
+ENV TZ=America/New_York
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+RUN apk --no-cache add cmake make g++ git libc6-compat linux-headers util-linux-dev
+RUN git clone --recurse-submodules --branch fix-klusolve-install https://github.com/beroset/OpenDSS-C.git
+WORKDIR /tmp/OpenDSS-C
+COPY alpine.patch .
+RUN git apply alpine.patch
+RUN cmake -DCMAKE_BUILD_TYPE=Release -S . -B build
+RUN cmake --build build -t package
+
+FROM alpine:3.20.1
+WORKDIR /root/
+RUN apk --no-cache add libstdc++ util-linux-dev
+COPY --from=builder /tmp/OpenDSS-C/build/OpenDSSX-*.sh .
+RUN ./OpenDSSX*.sh --skip-license --prefix=/usr/
+WORKDIR /mnt/host/
+ENV VISUAL=/usr/bin/true
+ENTRYPOINT ["/usr/bin/OpenDSSC"]
