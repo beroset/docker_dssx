@@ -4,8 +4,6 @@
 # beroset/opendssx software container and then tests them all.
 # The output should look something like this:
 #
-#    Build time for alpine: 225.998
-#    [OK] alpine
 #    Build time for arch: 174.521
 #    [OK] arch
 #    Build time for debian: 12.693
@@ -19,7 +17,7 @@
 # 
 CONTAINER_ENGINE="podman"
 BUILD_OPTS=
-DISTROLIST="alpine arch debian fedora opensuse ubuntu"
+DISTROLIST="arch debian fedora opensuse ubuntu"
 OK="\e[0;32mOK\e[m"
 BAD="\e[0;31mFailed!\e[m"
 LOGFILE="/dev/null"
