@@ -5,9 +5,7 @@ LABEL maintainer="Ed Beroset <beroset@ieee.org>"
 WORKDIR /tmp/
 ENV TZ=America/New_York
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-RUN mkdir -p epri
-RUN dnf update && \
-    dnf install -y gcc-c++ libcxx-static make git cmake libuuid-devel
+RUN dnf install -y gcc-c++ make git cmake libuuid-devel
 RUN git clone --recurse-submodules --branch fix-klusolve-install https://github.com/beroset/OpenDSS-C.git
 WORKDIR /tmp/OpenDSS-C
 RUN cmake -DCMAKE_BUILD_TYPE=Release -S . -B build
